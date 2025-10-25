@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.14)
 
-find_package(PythonLibs)
+# Force conda Python paths if in conda environment
+if(DEFINED ENV{CONDA_PREFIX})
+    set(PYTHON_INCLUDE_DIRS $ENV{CONDA_PREFIX}/include/python3.6m)
+    set(PYTHON_LIBRARIES $ENV{CONDA_PREFIX}/lib/libpython3.6m.so)
+    set(PYTHONLIBS_FOUND TRUE)
+else()
+    find_package(PythonLibs)
+endif()
 if(PYTHONLIBS_FOUND)
     add_executable(test_calforce)
     include_directories(${PYTHON_INCLUDE_DIRS})

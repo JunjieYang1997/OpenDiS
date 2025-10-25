@@ -1,2 +1,27 @@
 set(Kokkos_ENABLE_CUDA Off)
 set(Kokkos_ENABLE_CUDA_LAMBDA Off)
+# Conda environment support
+if(DEFINED ENV{CONDA_PREFIX})
+    # Override Python paths for conda
+    set(PYTHON_EXECUTABLE $ENV{CONDA_PREFIX}/bin/python)
+    
+    # Find Python version
+    execute_process(
+        COMMAND $ENV{CONDA_PREFIX}/bin/python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"
+        OUTPUT_VARIABLE PYTHON_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    
+    set(PYTHON_INCLUDE_DIR $ENV{CONDA_PREFIX}/include/python${PYTHON_VERSION})
+    set(PYTHON_LIBRARY $ENV{CONDA_PREFIX}/lib/libpython${PYTHON_VERSION}.so)
+    
+    # Add to global include paths
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -I${PYTHON_INCLUDE_DIR}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${PYTHON_INCLUDE_DIR}")
+
+    # Set library paths
+    set(CMAKE_LIBRARY_PATH $ENV{CONDA_PREFIX}/lib ${CMAKE_LIBRARY_PATH})
+
+    # Set sysroot for libraries
+    set(CMAKE_FIND_ROOT_PATH $ENV{CONDA_PREFIX}/x86_64-conda-linux-gnu/sysroot)
+endif()
